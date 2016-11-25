@@ -11,6 +11,7 @@ import com.esotericsoftware.kryonet.Server;
 
 import dawid.serverregistrar.messages.GetServerList;
 import dawid.serverregistrar.messages.RegisterMessage;
+import dawid.serverregistrar.messages.RequestConnection;
 import dawid.serverregistrar.messages.Servers;
 import dawid.serverregistrar.messages.Servers.ServerData;
 import dawid.serverregistrar.utils.RegisterClasses;
@@ -20,9 +21,12 @@ public class ServerRegistrar {
 	public static final int REGISTRAR_PORT_SERVER = 9090;
 	public static final int REGISTRAR_PORT_CLIENT = 9091;
 
-	public static final String REGISTRAR_ADRESS = "35.156.141.181";
+//	public static final String REGISTRAR_ADRESS = "35.156.141.181";
+	public static final String REGISTRAR_ADRESS = "localhost";
 
 	private final Map<Connection, ServerData> registeredServers = new HashMap<>();
+	private Server registrarServer;
+	private Server clientServer;
 
 	public ServerRegistrar() throws IOException {
 		createRegistrarServer();
@@ -30,7 +34,7 @@ public class ServerRegistrar {
 	}
 
 	private void createRegistrarServer() throws IOException {
-		Server registrarServer = new Server();
+		registrarServer = new Server();
 		registrarServer.bind(REGISTRAR_PORT_SERVER);
 		RegisterClasses.registerServerClasses(clazz -> registrarServer.getKryo().register(clazz));
 		registrarServer.start();
@@ -52,7 +56,7 @@ public class ServerRegistrar {
 	}
 
 	private void createClientServer() throws IOException {
-		Server clientServer = new Server();
+		clientServer = new Server();
 		clientServer.bind(REGISTRAR_PORT_CLIENT);
 		RegisterClasses.registerClientClasses(clazz -> clientServer.getKryo().register(clazz));
 		clientServer.start();
@@ -61,6 +65,15 @@ public class ServerRegistrar {
 			public void received(Connection connection, Object object) {
 				if (object instanceof GetServerList) {
 					connection.sendTCP(new Servers(registeredServers.values().stream().collect(Collectors.toList())));
+				}
+				if (object instanceof RequestConnection) {
+					RequestConnection request = (RequestConnection) object;
+					Connection toContact = registeredServers.keySet()
+						.stream()
+						.filter(con -> con.getRemoteAddressTCP().getAddress().getHostAddress().equals(request.getAdress()) && con.getRemoteAddressTCP().getPort() == request.getPort())
+						.findFirst()
+						.get();
+					registrarServer.sendToTCP(connection.getID(), new RequestConnection(connection.getRemoteAddressTCP().getAddress().getHostAddress(), connection.getRemoteAddressTCP().getPort()));
 				}
 			}
 		});
