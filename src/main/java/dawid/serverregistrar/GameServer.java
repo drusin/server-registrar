@@ -34,7 +34,7 @@ public class GameServer {
 		Client client = new Client();
 		RegisterClasses.registerServerClasses(clazz -> client.getKryo().register(clazz));
 		client.start();
-		client.connect(100, "localhost", ServerRegistrar.REGISTRAR_PORT_SERVER);
+		client.connect(100, ServerRegistrar.REGISTRAR_ADRESS, ServerRegistrar.REGISTRAR_PORT_SERVER);
 		client.sendTCP(new RegisterMessage(port, name));
 	}
 

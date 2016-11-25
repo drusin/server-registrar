@@ -18,7 +18,7 @@ public class GameClient {
 		Client registrarClient = new Client();
 		RegisterClasses.registerClientClasses(clazz -> registrarClient.getKryo().register(clazz));
 		registrarClient.start();
-		registrarClient.connect(100, "localhost", ServerRegistrar.REGISTRAR_PORT_CLIENT);
+		registrarClient.connect(100, ServerRegistrar.REGISTRAR_ADRESS, ServerRegistrar.REGISTRAR_PORT_CLIENT);
 		registrarClient.addListener(new Listener() {
 			@Override
 			public void received(Connection connection, Object object) {

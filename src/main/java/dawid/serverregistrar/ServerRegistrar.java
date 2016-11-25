@@ -20,6 +20,8 @@ public class ServerRegistrar {
 	public static final int REGISTRAR_PORT_SERVER = 9090;
 	public static final int REGISTRAR_PORT_CLIENT = 9091;
 
+	public static final String REGISTRAR_ADRESS = "35.156.141.181";
+
 	private final Map<Connection, ServerData> registeredServers = new HashMap<>();
 
 	public ServerRegistrar() throws IOException {
