@@ -5,6 +5,7 @@ ext {
 
 apply plugin: 'java'
 apply plugin: 'war'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -13,4 +14,13 @@ repositories {
 dependencies {
     providedCompile "org.projectlombok:lombok:$lombokVersion"
     compile group: 'com.esotericsoftware', name: 'kryonet', version: "$kryonetVersion"
+}
+
+mainClassName = 'dawid.serverregistrar.ServerRegistrar'
+
+jar {
+	manifest {
+		attributes 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+				'Main-Class': mainClassName
+	}
 }
