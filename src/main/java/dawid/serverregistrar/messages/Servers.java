@@ -19,5 +19,6 @@ public class Servers {
 		private String address;
 		private String name;
 		private int port;
+		private int connectionId;
 	}
 }

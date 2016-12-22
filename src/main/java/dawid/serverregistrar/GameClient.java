@@ -2,22 +2,19 @@ package dawid.serverregistrar;
 
 import java.io.IOException;
 
-import lombok.SneakyThrows;
-
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import dawid.serverregistrar.messages.ClientRequestConnection;
 import dawid.serverregistrar.messages.GetServerList;
-import dawid.serverregistrar.messages.RequestConnection;
 import dawid.serverregistrar.messages.Servers;
 import dawid.serverregistrar.messages.Servers.ServerData;
 import dawid.serverregistrar.utils.RegisterClasses;
 
 public class GameClient {
 
-	@SneakyThrows
-	public GameClient() {
+	public GameClient() throws Exception{
 		Client registrarClient = new Client();
 		RegisterClasses.registerClientClasses(clazz -> registrarClient.getKryo().register(clazz));
 		registrarClient.start();
@@ -28,7 +25,7 @@ public class GameClient {
 				if (object instanceof Servers) {
 					Servers servers = (Servers) object;
 					ServerData serverData = servers.getServers().stream().findFirst().get();
-					registrarClient.sendTCP(new RequestConnection(serverData.getAddress(), serverData.getPort()));
+					registrarClient.sendTCP(new ClientRequestConnection(serverData.getConnectionId()));
 					connectTo(serverData);
 				}
 			}
@@ -49,8 +46,7 @@ public class GameClient {
 		}
 	}
 
-	@SneakyThrows
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		new GameClient();
 		while(true) {
 			Thread.sleep(100);

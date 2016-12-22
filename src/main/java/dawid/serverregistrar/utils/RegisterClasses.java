@@ -5,9 +5,10 @@ import java.util.function.Consumer;
 
 import lombok.experimental.UtilityClass;
 
+import dawid.serverregistrar.messages.ClientRequestConnection;
 import dawid.serverregistrar.messages.GetServerList;
 import dawid.serverregistrar.messages.RegisterMessage;
-import dawid.serverregistrar.messages.RequestConnection;
+import dawid.serverregistrar.messages.ServerRequestConnection;
 import dawid.serverregistrar.messages.Servers;
 
 @UtilityClass
@@ -15,7 +16,8 @@ public class RegisterClasses {
 
 	public static void registerServerClasses (Consumer<Class> registrar) {
 		registrar.accept(RegisterMessage.class);
-		registrar.accept(RequestConnection.class);
+		registrar.accept(ClientRequestConnection.class);
+		registrar.accept(ServerRequestConnection.class);
 	}
 
 	public static void registerClientClasses (Consumer<Class> registrar) {
@@ -24,6 +26,6 @@ public class RegisterClasses {
 		registrar.accept(Servers.ServerData.class);
 		registrar.accept(ArrayList.class);
 		registrar.accept(String.class);
-		registrar.accept(RequestConnection.class);
+		registrar.accept(ClientRequestConnection.class);
 	}
 }

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestConnection {
-	private String adress;
-	private int port;
+public class ClientRequestConnection {
+	private int connectionId;
 }

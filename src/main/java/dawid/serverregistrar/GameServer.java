@@ -11,7 +11,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 import dawid.serverregistrar.messages.RegisterMessage;
-import dawid.serverregistrar.messages.RequestConnection;
+import dawid.serverregistrar.messages.ServerRequestConnection;
 import dawid.serverregistrar.utils.RegisterClasses;
 
 @Data
@@ -19,8 +19,7 @@ public class GameServer {
 	private final int port;
 	private final String name;
 
-	@SneakyThrows
-	public GameServer(int port, String name) {
+	public GameServer(int port, String name) throws Exception{
 		this.port = port;
 		this.name = name;
 
@@ -43,12 +42,12 @@ public class GameServer {
 			@SneakyThrows
 			@Override
 			public void received(Connection connection, Object object) {
-				if (object instanceof RequestConnection) {
-					RequestConnection request = (RequestConnection) object;
+				if (object instanceof ServerRequestConnection) {
+					ServerRequestConnection request = (ServerRequestConnection) object;
 					Client tmpClient = new Client();
 					tmpClient.start();
 					try {
-						tmpClient.connect(100, request.getAdress(), request.getPort());
+						tmpClient.connect(100, request.getAddress(), request.getPort());
 					}
 					catch (IOException e) {
 						//expected
@@ -62,7 +61,7 @@ public class GameServer {
 		});
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		new GameServer(7000, "first");
 	}
 }

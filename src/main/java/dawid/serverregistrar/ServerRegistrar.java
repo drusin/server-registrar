@@ -9,9 +9,10 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
+import dawid.serverregistrar.messages.ClientRequestConnection;
 import dawid.serverregistrar.messages.GetServerList;
 import dawid.serverregistrar.messages.RegisterMessage;
-import dawid.serverregistrar.messages.RequestConnection;
+import dawid.serverregistrar.messages.ServerRequestConnection;
 import dawid.serverregistrar.messages.Servers;
 import dawid.serverregistrar.messages.Servers.ServerData;
 import dawid.serverregistrar.utils.RegisterClasses;
@@ -21,10 +22,10 @@ public class ServerRegistrar {
 	public static final int REGISTRAR_PORT_SERVER = 9090;
 	public static final int REGISTRAR_PORT_CLIENT = 9091;
 
-//	public static final String REGISTRAR_ADRESS = "35.156.141.181";
-	public static final String REGISTRAR_ADRESS = "localhost";
+	public static final String REGISTRAR_ADRESS = "35.156.141.181";
+//	public static final String REGISTRAR_ADRESS = "localhost";
 
-	private final Map<Connection, ServerData> registeredServers = new HashMap<>();
+	private final Map<Integer, ServerData> registeredServers = new HashMap<>();
 	private Server registrarServer;
 	private Server clientServer;
 
@@ -44,13 +45,13 @@ public class ServerRegistrar {
 				if (object instanceof RegisterMessage) {
 					RegisterMessage message = (RegisterMessage) object;
 					System.out.println(connection + ": " + message);
-					registeredServers.put(connection, new ServerData(connection.getRemoteAddressTCP().getAddress().getHostAddress(), message.getName(), message.getPort()));
+					registeredServers.put(connection.getID(), new ServerData(connection.getRemoteAddressTCP().getAddress().getHostAddress(), message.getName(), message.getPort(), connection.getID()));
 				}
 			}
 
 			@Override
 			public void disconnected(Connection connection) {
-				registeredServers.remove(connection);
+				registeredServers.remove(connection.getID());
 			}
 		});
 	}
@@ -66,14 +67,9 @@ public class ServerRegistrar {
 				if (object instanceof GetServerList) {
 					connection.sendTCP(new Servers(registeredServers.values().stream().collect(Collectors.toList())));
 				}
-				if (object instanceof RequestConnection) {
-					RequestConnection request = (RequestConnection) object;
-					Connection toContact = registeredServers.keySet()
-						.stream()
-						.filter(con -> con.getRemoteAddressTCP().getAddress().getHostAddress().equals(request.getAdress()) && con.getRemoteAddressTCP().getPort() == request.getPort())
-						.findFirst()
-						.get();
-					registrarServer.sendToTCP(connection.getID(), new RequestConnection(connection.getRemoteAddressTCP().getAddress().getHostAddress(), connection.getRemoteAddressTCP().getPort()));
+				if (object instanceof ClientRequestConnection) {
+					ClientRequestConnection request = (ClientRequestConnection) object;
+					registrarServer.sendToTCP(request.getConnectionId(), new ServerRequestConnection(connection.getRemoteAddressTCP().getAddress().getHostAddress(), connection.getRemoteAddressTCP().getPort()));
 				}
 			}
 		});
